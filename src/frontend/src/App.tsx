@@ -399,25 +399,25 @@ function App() {
               </Section>
 
               <Section title="Sipariş & İşlem Detayları" icon={<Package size={16} />}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs text-zinc-400 font-medium ml-1">İşlem Tipi</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                  <div className="flex flex-col gap-2 w-full">
+                    <label className="text-[11px] uppercase tracking-wider text-zinc-500 font-bold">İşlem Tipi</label>
                     <div className="relative">
                       <select
-                        className="w-full bg-zinc-900/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none appearance-none"
+                        className="w-full bg-zinc-950/50 border border-white/10 rounded-xl pl-4 pr-10 py-3 text-sm focus:ring-1 focus:ring-indigo-500 outline-none appearance-none text-white hover:border-white/20 transition-all"
                         value={formData.operation_type || 'cut'}
                         onChange={(e) => setFormData(prev => ({ ...prev, operation_type: e.target.value as any }))}
                       >
                         <option value="cut">Sadece Kesim (Standart)</option>
-                        <option value="cut_slice">Kesim + Dilimle (+%5)</option>
-                        <option value="cut_paste">Kesim + Yapıştır (+%15)</option>
+                        <option value="cut_slice">Kesim + Dilimleme (%85)</option>
+                        <option value="cut_paste">Kesim + Yapıştırma (%100)</option>
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
                         <Settings size={14} />
                       </div>
                     </div>
                   </div>
-                  <Input label="Hedef Kutu Adedi (İsteğe Bağlı)" name="req_boxes" onChange={handleChange} placeholder="Örn: 1000" />
+                  <Input label="Hedef Kutu Adedi (İsteğe Bağlı)" name="req_boxes" type="number" onChange={handleChange} placeholder="Örn: 1000" />
                 </div>
 
                 <div className="mt-4 p-3 bg-emerald-500/5 border border-emerald-500/10 rounded-xl flex items-start gap-3">
@@ -427,7 +427,7 @@ function App() {
                   <div>
                     <h4 className="text-xs font-semibold text-emerald-400 mb-0.5">Otomatik İskonto</h4>
                     <p className="text-[11px] text-emerald-500/70">
-                      10 blok ve üzeri siparişlerde birim fiyata otomatik <strong>%5 miktar iskontosu</strong> uygulanır.
+                      10 blok ve üzeri siparişlerde birim fiyata otomatik <strong>%6.25 miktar iskontosu</strong> uygulanır.
                     </p>
                   </div>
                 </div>
