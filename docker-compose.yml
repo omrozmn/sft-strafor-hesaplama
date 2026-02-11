@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  sfteps:
+    build: .
+    ports:
+      - "6098:80"
+    # volumes:
+    #   - ./src:/app/src

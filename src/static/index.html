@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFT EPS Motoru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head>
+
+<body>
+    <div class="background-mesh"></div>
+
+    <div class="app-layout">
+        <!-- Control Panel -->
+        <nav class="glass-panel sidebar">
+            <div class="brand">
+                <div class="logo-box">
+                    <i data-lucide="box"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>SFT <span class="highlight">Motoru</span></h1>
+                    <span class="version">v1.2 TR</span>
+                </div>
+            </div>
+
+            <form id="calcForm" class="control-form">
+                <div class="section-title">Ürün Ölçüleri <span class="unit">(cm)</span></div>
+
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label>Boy</label>
+                        <input type="number" step="0.1" name="boy" placeholder="0.0" required>
+                    </div>
+                    <div class="input-group">
+                        <label>En</label>
+                        <input type="number" step="0.1" name="en" placeholder="0.0" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Yükseklik</label>
+                        <input type="number" step="0.1" name="yukseklik" placeholder="0.0" required>
+                    </div>
+                </div>
+
+                <div class="section-title">Özellikler</div>
+                <div class="input-grid two-col">
+                    <div class="input-group">
+                        <label>Duvar Kalınlığı</label>
+                        <input type="number" step="0.1" name="wall_thickness" value="1.0">
+                    </div>
+                    <div class="input-group">
+                        <label>DNS (Dansite)</label>
+                        <input type="number" name="dns" placeholder="Oto">
+                    </div>
+                </div>
+
+                <div class="section-title">Kapak Konfigürasyonu</div>
+                <div class="caps-container arrow-box">
+                    <div class="cap-row">
+                        <span class="label">Üst</span>
+                        <input type="number" class="w-sm" name="top_cap_count" value="1" title="Adet">
+                        <span class="x-sep">×</span>
+                        <input type="number" step="0.1" name="top_cap_thickness_cm" value="2.0" title="Kalınlık">
+                    </div>
+                    <div class="divider"></div>
+                    <div class="cap-row">
+                        <span class="label">Alt</span>
+                        <input type="number" class="w-sm" name="bottom_cap_count" value="1" title="Adet">
+                        <span class="x-sep">×</span>
+                        <input type="number" step="0.1" name="bottom_cap_thickness_cm" value="2.0" title="Kalınlık">
+                    </div>
+                </div>
+
+                <div class="section-title mt-4">Sipariş Hedefi</div>
+                <div class="input-group highlight-group">
+                    <i data-lucide="target" class="field-icon"></i>
+                    <input type="number" name="req_boxes" placeholder="Hedef Kutu Adedi (İsteğe Bağlı)">
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="hero-btn">
+                        <span class="btn-text">Hesapla & Optimize Et</span>
+                        <i data-lucide="zap"></i>
+                        <div class="btn-glow"></div>
+                    </button>
+                </div>
+            </form>
+
+            <div class="footer-info">
+                <div class="status-dot online"></div>
+                <span>Sistem Hazır</span>
+            </div>
+        </nav>
+
+        <!-- Visualization / Results Stage -->
+        <main class="stage-area">
+            <header class="top-bar">
+                <div class="breadcrumbs">
+                    <span>EPS</span> / <span>Hesaplayıcı</span> / <span>Aktif Oturum</span>
+                </div>
+                <div class="user-profile">
+                    <div class="icon-circle"><i data-lucide="user"></i></div>
+                </div>
+            </header>
+
+            <div id="emptyState" class="center-message">
+                <div class="cube-loader static"></div>
+                <h2>Veri Bekleniyor</h2>
+                <p>En verimli kesim planını oluşturmak için soldan ölçüleri giriniz.</p>
+            </div>
+
+            <div id="resultsDashboard" class="dashboard hidden">
+                <!-- KPI Row -->
+                <div class="kpi-grid">
+                    <div class="kpi-card gradient-1">
+                        <div class="kpi-icon"><i data-lucide="layers"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Gerekli Blok</span>
+                            <span class="kpi-value count-anim" id="resBlocks">0</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card gradient-2">
+                        <div class="kpi-icon"><i data-lucide="dollar-sign"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Tahmini Maliyet</span>
+                            <span class="kpi-value" id="resPrice">0 ₺</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card gradient-3">
+                        <div class="kpi-icon"><i data-lucide="maximize-2"></i></div>
+                        <div class="kpi-content">
+                            <span class="kpi-label">Verimlilik</span>
+                            <span class="kpi-value sm" id="resEff">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Details Split -->
+                <div class="details-split">
+                    <!-- Left: Production Table -->
+                    <div class="glass-panel main-panel">
+                        <div class="panel-header">
+                            <h3><i data-lucide="factory"></i> Üretim Çıktısı</h3>
+                            <button class="icon-btn"><i data-lucide="download"></i></button>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Parça</th>
+                                        <th>Blok Başı</th>
+                                        <th>Toplam Plan</th>
+                                        <th>İhtiyaç</th>
+                                        <th>Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productionTable">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Right: Technical Specs -->
+                    <div class="glass-panel side-panel">
+                        <div class="panel-header">
+                            <h3><i data-lucide="cpu"></i> Kesim Mantığı</h3>
+                        </div>
+
+                        <div class="tech-stack">
+                            <div class="tech-row">
+                                <span class="lbl"><i data-lucide="box"></i> Blok Yapısı</span>
+                                <span class="val mono" id="techBlockDim">--</span>
+                            </div>
+                            <div class="tech-row">
+                                <span class="lbl"><i data-lucide="move"></i> 202 Ekseni</span>
+                                <span class="val accent" id="tech202Axis">--</span>
+                            </div>
+                            <div class="tech-row">
+                                <span class="lbl"><i data-lucide="scissors"></i> Efektif Yük.</span>
+                                <span class="val" id="techEffH">--</span>
+                            </div>
+
+                            <div class="divider-line"></div>
+
+                            <div class="visual-mini-layout">
+                                <div class="lbl-head">Kesim İzi (Footprint)</div>
+                                <div class="footprint-display">
+                                    <div class="fp-box" id="fpVisual">
+                                        <span id="fpText">-- x --</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tech-row mt-2">
+                                <span class="lbl">Sıra Düzeni</span>
+                                <span class="val mono" id="techLayoutInfo">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>
